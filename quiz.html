@@ -1,1 +1,157 @@
+import { useState } from 'react';
+import { CheckCircle, XCircle } from 'lucide-react';
 
+export default function BiologyQuiz() {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const [quizComplete, setQuizComplete] = useState(false);
+
+  const questions = [
+    {
+      question: "What is the functional unit of the kidney?",
+      options: ["Nephron", "Neuron", "Alveolus", "Sarcomere", "Osteon"],
+      correct: 0
+    },
+    {
+      question: "What is the powerhouse of the cell?",
+      options: ["Nucleus", "Ribosome", "Mitochondria", "Golgi apparatus", "Lysosome"],
+      correct: 2
+    },
+    {
+      question: "Which blood cells are responsible for fighting infections?",
+      options: ["Red blood cells", "Platelets", "White blood cells", "Plasma cells", "Stem cells"],
+      correct: 2
+    },
+    {
+      question: "What is the basic unit of heredity?",
+      options: ["Chromosome", "DNA", "Gene", "Allele", "Nucleotide"],
+      correct: 2
+    },
+    {
+      question: "What is the largest organ in the human body?",
+      options: ["Liver", "Brain", "Heart", "Skin", "Lungs"],
+      correct: 3
+    }
+  ];
+
+  const handleAnswer = (index) => {
+    setSelectedAnswer(index);
+    setShowResult(true);
+    
+    if (index === questions[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+    } else {
+      setQuizComplete(true);
+    }
+  };
+
+  const handleRestart = () => {
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setQuizComplete(false);
+  };
+
+  if (quizComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Quiz Complete!</h2>
+          <p className="text-5xl font-bold text-indigo-600 mb-2">{score}/{questions.length}</p>
+          <p className="text-gray-600 mb-6">
+            {score === questions.length ? "Perfect score! Amazing!" : 
+             score >= questions.length * 0.7 ? "Great job!" : 
+             "Keep learning!"}
+          </p>
+          <button
+            onClick={handleRestart}
+            className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm font-semibold text-indigo-600">
+              Question {currentQuestion + 1} of {questions.length}
+            </span>
+            <span className="text-sm font-semibold text-gray-600">
+              Score: {score}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          {questions[currentQuestion].question}
+        </h2>
+
+        <div className="space-y-3 mb-6">
+          {questions[currentQuestion].options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => !showResult && handleAnswer(index)}
+              disabled={showResult}
+              className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                showResult
+                  ? index === questions[currentQuestion].correct
+                    ? 'border-green-500 bg-green-50'
+                    : index === selectedAnswer
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-200 bg-gray-50'
+                  : selectedAnswer === index
+                  ? 'border-indigo-500 bg-indigo-50'
+                  : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
+              } ${showResult ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{option}</span>
+                {showResult && index === questions[currentQuestion].correct && (
+                  <CheckCircle className="text-green-500" size={24} />
+                )}
+                {showResult && index === selectedAnswer && index !== questions[currentQuestion].correct && (
+                  <XCircle className="text-red-500" size={24} />
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {showResult && (
+          <div className="text-center">
+            <button
+              onClick={handleNext}
+              className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
+              {currentQuestion < questions.length - 1 ? 'Next Question' : 'See Results'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
